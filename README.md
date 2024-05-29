@@ -1,5 +1,7 @@
 = TODO =
 
+export $(cat .env | xargs)
+
 ```mermaid
 flowchart LR
     Client --> Router
