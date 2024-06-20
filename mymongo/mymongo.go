@@ -2,6 +2,7 @@ package mymongo
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"time"
@@ -22,6 +23,18 @@ type MongoServer struct {
 type MongoDB struct {
 	Client   *mongo.Client
 	Database *mongo.Database
+}
+
+type Database interface {
+	FindOne(context.Context, interface{}) SingleResult
+	InsertOne(context.Context, interface{}) (interface{}, error)
+	InsertMany(context.Context, []interface{}) ([]interface{}, error)
+	DeleteOne(context.Context, interface{}) (int64, error)
+	Find(context.Context, interface{}, ...*options.FindOptions) (Cursor, error)
+	CountDocuments(context.Context, interface{}, ...*options.CountOptions) (int64, error)
+	Aggregate(context.Context, interface{}) (Cursor, error)
+	UpdateOne(context.Context, interface{}, interface{}, ...*options.UpdateOptions) (*mongo.UpdateResult, error)
+	UpdateMany(context.Context, interface{}, interface{}, ...*options.UpdateOptions) (*mongo.UpdateResult, error)
 }
 
 func NewConnection(server *MongoServer) (*MongoDB, error) {
@@ -62,18 +75,18 @@ func CloseConnection(mdb *MongoDB) {
 	log.Println("Connection to MongoDB closed.")
 }
 
-func TestInfrastructure(server *MongoServer) string {
+func TestInfrastructure(server *MongoServer) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
+	// Establish connection with proper error handling
 	mdb, err := NewConnection(server)
 	if err != nil {
-		return fmt.Errorf("error in connection: %w", err).Error()
+		return fmt.Errorf("error in connection: %w", err)
 	}
-	// Close the connection
-	defer CloseConnection(mdb)
+	defer CloseConnection(mdb) // Ensure connection closure (even on successful test)
 
-	// Access database and collection using methods on MongoDB
+	// Access database and collection
 	col := mdb.Database.Collection("person")
 
 	// Sample data for insertion
@@ -83,31 +96,37 @@ func TestInfrastructure(server *MongoServer) string {
 		"city": "New York",
 	}
 
-	// Insert data
+	// Insert data with proper error handling
 	_, err = col.InsertOne(ctx, data)
 	if err != nil {
-		return fmt.Errorf("error inserting data: %w", err).Error()
+		return fmt.Errorf("error inserting data: %w", err)
 	}
 
-	// Define a filter for finding documents
+	// Define filter for finding documents
 	filter := map[string]interface{}{"name": "John Doe"}
 
-	// Find documents
+	// Find documents with proper error handling and cursor closure
 	cursor, err := col.Find(ctx, filter)
 	if err != nil {
-		return fmt.Errorf("error finding documents: %w", err).Error()
+		return fmt.Errorf("error finding documents: %w", err)
 	}
-	defer cursor.Close(ctx) // Ensure cursor is closed
+	defer cursor.Close(ctx)
 
-	// Iterate through results and print them (optional)
+	// Iterate through results (optional)
+	var foundDocument bool
 	for cursor.Next(ctx) {
 		var result map[string]interface{}
 		err := cursor.Decode(&result)
 		if err != nil {
-			return fmt.Errorf("error decoding result: %w", err).Error()
+			return fmt.Errorf("error decoding result: %w", err)
 		}
-		fmt.Println(result)
+		foundDocument = true
 	}
 
-	return "SUCCESS"
+	if !foundDocument {
+		// Indicate no document found using an error (consider a custom error type)
+		return errors.New("document not found")
+	}
+
+	return nil // Success
 }

@@ -2,6 +2,7 @@ package bootstrap
 
 import (
 	"log"
+	"time"
 
 	"github.com/spf13/viper"
 
@@ -9,18 +10,19 @@ import (
 )
 
 type Env struct {
-	AppEnv                 string `mapstructure:"APP_ENV"`
-	ServerAddress          string `mapstructure:"SERVER_ADDRESS"`
-	ContextTimeout         int    `mapstructure:"CONTEXT_TIMEOUT"`
-	MongoHost              string `mapstructure:"MONGO_HOST"`
-	MongoPort              int    `mapstructure:"MONGO_PORT"`
-	MongoUser              string `mapstructure:"MONGO_USER"`
-	MongoPassword          string `mapstructure:"MONGO_PASSWORD"`
-	MongoDatabase          string `mapstructure:"MONGO_DATABASE"`
-	AccessTokenExpiryHour  int    `mapstructure:"ACCESS_TOKEN_EXPIRY_HOUR"`
-	RefreshTokenExpiryHour int    `mapstructure:"REFRESH_TOKEN_EXPIRY_HOUR"`
-	AccessTokenSecret      string `mapstructure:"ACCESS_TOKEN_SECRET"`
-	RefreshTokenSecret     string `mapstructure:"REFRESH_TOKEN_SECRET"`
+	AppEnv                 int           `mapstructure:"APP_ENV"`
+	SystemUId              string        `mapstructure:"SYSTEM_UID"`
+	ServerAddress          string        `mapstructure:"SERVER_ADDRESS"`
+	ContextTimeout         time.Duration `mapstructure:"CONTEXT_TIMEOUT"`
+	MongoHost              string        `mapstructure:"MONGO_HOST"`
+	MongoPort              int           `mapstructure:"MONGO_PORT"`
+	MongoUser              string        `mapstructure:"MONGO_USER"`
+	MongoPassword          string        `mapstructure:"MONGO_PASSWORD"`
+	MongoDatabase          string        `mapstructure:"MONGO_DATABASE"`
+	AccessTokenExpiryHour  int           `mapstructure:"ACCESS_TOKEN_EXPIRY_HOUR"`
+	RefreshTokenExpiryHour int           `mapstructure:"REFRESH_TOKEN_EXPIRY_HOUR"`
+	AccessTokenSecret      string        `mapstructure:"ACCESS_TOKEN_SECRET"`
+	RefreshTokenSecret     string        `mapstructure:"REFRESH_TOKEN_SECRET"`
 }
 
 func NewEnv() *Env {
@@ -37,7 +39,7 @@ func NewEnv() *Env {
 		log.Fatal(domain.LOAD_FAIL, err)
 	}
 
-	if env.AppEnv == "development" {
+	if env.AppEnv == 0 {
 		log.Println(domain.DEV_ENVIRONMENT)
 	}
 

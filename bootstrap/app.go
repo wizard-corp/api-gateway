@@ -4,13 +4,13 @@ import (
 	"github.com/wizard-corp/api-gateway/mymongo"
 )
 
-type Application struct {
+type App struct {
 	Env   *Env
 	Mongo *mymongo.MongoServer
 }
 
-func App() Application {
-	app := &Application{}
+func NewApp() App {
+	app := &App{}
 	app.Env = NewEnv()
 	app.Mongo = &mymongo.MongoServer{
 		Host:     app.Env.MongoHost,
