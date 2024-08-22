@@ -1,31 +1,44 @@
 package application
 
 import (
+	"errors"
+
 	"github.com/wizard-corp/api-gateway/domain"
 	"github.com/wizard-corp/api-gateway/jwttoken"
-	"github.com/wizard-corp/api-gateway/mymongo"
+	"golang.org/x/crypto/bcrypt"
 )
 
-type loginUsecase struct {
-	writeUId       string
-	userRepository domain.UserRepository
-}
-
-func NewLoginUsecase(writeUId string, db mymongo.MongoDB) domain.LoginUsecase {
-	return &loginUsecase{
-		writeUId:       writeUId,
-		userRepository: mymongo.NewUserRepository(db, "user"),
+func (uc *domain.LoginUsecase) NewLogin(
+	email string,
+	password string,
+	accessTokenSecret string,
+	accessTokenExpiryHour int,
+	refreshTokenSecret string,
+	refreshTokenExpiryHour int,
+) (domain.LoginResponse, error) {
+	user, err := uc.userRepository.GetUserByEmail(email)
+	if err != nil {
+		return nil, err
 	}
-}
 
-func (uc *loginUsecase) GetUserByEmail(email string) (domain.User, error) {
-	return uc.userRepository.GetByEmail(email)
-}
+	if bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)) != nil {
+		return nil, errors.New(domain.INVALID_CREDENTIALS)
+	}
 
-func (uc *loginUsecase) CreateAccessToken(user *domain.User, secret string, expiry int) (accessToken string, err error) {
-	return jwttoken.CreateAccessToken(user, secret, expiry)
-}
+	accessToken, err := jwttoken.CreateAccessToken(user, accessTokenSecret, accessTokenExpiryHour)
+	if err != nil {
+		return nil, err
+	}
 
-func (uc *loginUsecase) CreateRefreshToken(user *domain.User, secret string, expiry int) (refreshToken string, err error) {
-	return jwttoken.CreateRefreshToken(user, secret, expiry)
+	refreshToken, err := jwttoken.CreateRefreshToken(user, refreshTokenSecret, refreshTokenExpiryHour)
+	if err != nil {
+		return err
+	}
+
+	loginResponse := &domain.LoginResponse{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+	}
+
+	return loginResponse, nil
 }

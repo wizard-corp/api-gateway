@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/wizard-corp/api-gateway/application"
 	"github.com/wizard-corp/api-gateway/bootstrap"
 	"github.com/wizard-corp/api-gateway/domain"
 	"github.com/wizard-corp/api-gateway/presentation"
@@ -25,15 +24,15 @@ func Login(app *bootstrap.App, timeout time.Duration, group *gin.RouterGroup) {
 			return
 		}
 
-		loginUseCase := application.NewLoginUsecase(app.SystemUId, app.Mongo)
+		loginUseCase := domain.NewLoginUsecase(app.Env.SystemUId, app.Mongo)
 		response, err := presentation.NewLoginController(
 			loginUseCase,
 			request.Email,
 			request.Password,
-			app.AccessTokenSecret,
-			app.AccessTokenExpiryHour,
-			app.RefreshTokenSecret,
-			app.RefreshTokenExpiryHour,
+			app.Env.AccessTokenSecret,
+			app.Env.AccessTokenExpiryHour,
+			app.Env.RefreshTokenSecret,
+			app.Env.RefreshTokenExpiryHour,
 		)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": domain.LOGIC_CRUSH})

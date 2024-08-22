@@ -1,23 +1,31 @@
 package bootstrap
 
 import (
+	"log"
+
+	"github.com/wizard-corp/api-gateway/domain"
 	"github.com/wizard-corp/api-gateway/mymongo"
 )
 
 type App struct {
 	Env   *Env
-	Mongo *mymongo.MongoServer
+	Mongo *mymongo.MongoDB
 }
 
 func NewApp() App {
 	app := &App{}
 	app.Env = NewEnv()
-	app.Mongo = &mymongo.MongoServer{
-		Host:     app.Env.MongoHost,
-		Port:     app.Env.MongoPort,
-		User:     app.Env.MongoUser,
-		Password: app.Env.MongoPassword,
-		Database: app.Env.MongoDatabase,
-	}
-	return *app
+	mongoClient, err := mymongo.NewMongoClient(&mymongo.MongoServer{
+        Host:     app.Env.MongoHost,
+        Port:     app.Env.MongoPort,
+        User:     app.Env.MongoUser,
+        Password: app.Env.MongoPassword,
+        Database: app.Env.MongoDatabase,
+    })
+    if err != nil {
+        return nil, err
+    }
+    app.Mongo = mongoClient
+
+    return app, nil
 }

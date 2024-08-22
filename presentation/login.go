@@ -2,16 +2,10 @@ package presentation
 
 import (
 	"errors"
-
-	"golang.org/x/crypto/bcrypt"
+	"strings"
 
 	"github.com/wizard-corp/api-gateway/domain"
 )
-
-type LoginResponse struct {
-	AccessToken  string `json:"accessToken"`
-	RefreshToken string `json:"refreshToken"`
-}
 
 func NewLoginController(
 	uc domain.LoginUsecase,
@@ -21,25 +15,23 @@ func NewLoginController(
 	accessTokenExpiryHour int,
 	refreshTokenSecret string,
 	refreshTokenExpiryHour int,
-) (*LoginResponse, error) {
-	user, err := uc.GetUserByEmail(email)
-	if err != nil {
-		return nil, errors.New(domain.USER_NOT_FOUND)
+) (*domain.LoginResponse, error) {
+	errs := domain.IsLoginValid(email, password)
+	if len(errs) > 0 {
+		return nil, errors.New(domain.INVALID_SCHEMA + "\n" + strings.Join(errs, "\n"))
 	}
 
-	if bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)) != nil {
-		return nil, errors.New(domain.INVALID_CREDENTIALS)
-	}
-
-	accessToken, err := uc.CreateAccessToken(&user, accessTokenSecret, accessTokenExpiryHour)
-	if err != nil {
-		return nil, err
-	}
-
-	refreshToken, err := uc.CreateRefreshToken(&user, refreshTokenSecret, refreshTokenExpiryHour)
+	loginResponse, err := uc.NewLogin(
+		email,
+		password,
+		accessTokenSecret,
+		accessTokenExpiryHour,
+		refreshTokenSecret,
+		refreshTokenExpiryHour,
+	)
 	if err != nil {
 		return nil, err
 	}
 
-	return &LoginResponse{AccessToken: accessToken, RefreshToken: refreshToken}, nil
+	return loginResponse, nil
 }

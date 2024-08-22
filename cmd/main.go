@@ -1,14 +1,12 @@
 package main
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/wizard-corp/api-gateway/api/route"
 	"github.com/wizard-corp/api-gateway/bootstrap"
-	"github.com/wizard-corp/api-gateway/mymongo"
+	"github.com/wizard-corp/api-gateway/rest/route"
 )
 
 // TODO
@@ -16,17 +14,10 @@ import (
 // create handler for route ping
 func main() {
 	app := bootstrap.NewApp()
-	env := app.Env
 
-	timeout := time.Duration(env.ContextTimeout) * time.Second
-
-	fmt.Println("Test Infrastructure...")
-	err := mymongo.TestInfrastructure(app.Mongo)
-	if err != nil {
-		fmt.Println(err)
-	}
+	timeout := time.Duration(app.Env.ContextTimeout) * time.Second
 
 	gin := gin.Default()
-	route.Setup(app, timeout, gin)
-	gin.Run(env.ServerAddress) // listen and serve on 0.0.0.0:8080
+	route.Setup(&app, timeout, gin)
+	gin.Run(app.Env.ServerAddress) // listen and serve on 0.0.0.0:8080
 }
