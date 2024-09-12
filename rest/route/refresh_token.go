@@ -10,22 +10,21 @@ import (
 	"github.com/wizard-corp/api-gateway/src/presentation"
 )
 
-type LoginRequest struct {
-	Email    string `form:"email" binding:"required,email"`
-	Password string `form:"password" binding:"required"`
+type RefreshTokenRequest struct {
+	RefreshToken string `form:"refreshToken" binding:"required"`
 }
 
-func Login(app *bootstrap.App, timeout time.Duration, group *gin.RouterGroup) {
+func RefreshToken(app *bootstrap.App, timeout time.Duration, group *gin.RouterGroup) {
 	fn := func(c *gin.Context) {
-		var request LoginRequest
+		var request RefreshTokenRequest
 		err := c.ShouldBind(&request)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": domain.INVALID_SCHEMA + "\n" + err.Error()})
 			return
 		}
 
-		lc := presentation.NewLoginController(timeout, app)
-		response, err := lc.NewLogin(request.Email, request.Password, app.Env.AccessTokenSecret, app.Env.AccessTokenExpiryHour, app.Env.RefreshTokenSecret, app.Env.RefreshTokenExpiryHour)
+		lc := presentation.NewRefreshTokenController(timeout, app)
+		response, err := lc.NewRefreshToken(request.RefreshToken, app.Env.AccessTokenSecret, app.Env.AccessTokenExpiryHour, app.Env.RefreshTokenSecret, app.Env.RefreshTokenExpiryHour)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
@@ -33,5 +32,5 @@ func Login(app *bootstrap.App, timeout time.Duration, group *gin.RouterGroup) {
 
 		c.JSON(http.StatusOK, response)
 	}
-	group.POST("/login", fn)
+	group.POST("/refresh", fn)
 }

@@ -7,7 +7,12 @@ const (
 	INVALID_SCHEMA       = "Invalid schema"
 	NOT_FOUND            = "Not found"
 	LOGIC_CRUSH          = "Logic crush operation"
-	USER_NOT_FOUND       = "User not found with the given email"
 	INVALID_CREDENTIALS  = "Invalid credentials for user"
 	DB_CONNECTION_FAILED = "Connection attempt was not successfull"
+	ENCRIPTION_ERROR     = "Encription failed"
+	DB_INSERT_FAILED     = "Create Fail"
+	INVALID_FORMAT       = "Invalid format"
+	IS_EMPTY             = "The param is empty"
+	ALREADY_EXISTS       = "The register is present"
+	DECODE_FAIL          = "failed to parse"
 )

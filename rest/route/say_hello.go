@@ -4,10 +4,10 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/wizard-corp/api-gateway/bootstrap"
+	"github.com/wizard-corp/api-gateway/src/bootstrap"
 )
 
-func SayHello(env *bootstrap.Env, timeout time.Duration, group *gin.RouterGroup) {
+func SayHello(app *bootstrap.App, timeout time.Duration, group *gin.RouterGroup) {
 	lc := func(c *gin.Context) {
 		c.JSON(
 			200,
