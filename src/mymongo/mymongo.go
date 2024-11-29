@@ -35,11 +35,11 @@ func NewMongoDBClient(config *MongoConfig) (*MongoDB, error) {
 
 	cli, err := mongo.Connect(ctx, options.Client().ApplyURI(mongodbURI))
 	if err != nil {
-		return nil, errors.New(DB_CONNECTION_FAILED)
+		return nil, errors.New(DB_CONNECTION_FAILED + err.Error())
 	}
 	err = cli.Ping(ctx, readpref.Primary())
 	if err != nil {
-		return nil, errors.New(DB_CONNECTION_FAILED)
+		return nil, errors.New(DB_CONNECTION_FAILED + err.Error())
 	}
 
 	db := cli.Database(config.Database)
@@ -54,7 +54,7 @@ func (mongoDB *MongoDB) Close() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	if err := mongoDB.Cli.Disconnect(ctx); err != nil {
-		return errors.New(DB_DISCONNECT_FAILED)
+		return errors.New(DB_DISCONNECT_FAILED + err.Error())
 	}
 
 	return nil

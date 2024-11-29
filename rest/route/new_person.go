@@ -11,24 +11,23 @@ import (
 )
 
 type NewPersonRequest struct {
-	FirtsName   string `form:"firtsName" binding:"required"`
-	PatriLineal string `form:"patriLineal" binding:"required"`
-	MatriLineal string `form:"matriLineal" binding:"required"`
-	Address     string `form:"address" binding:"required"`
-	BirthDate   string `form:"birthDate" binding:"required"`
+	FirtsName   string `json:"firtsName" binding:"required"`
+	PatriLineal string `json:"patriLineal" binding:"required"`
+	MatriLineal string `json:"matriLineal" binding:"required"`
+	Address     string `json:"address" binding:"required"`
+	BirthDate   string `json:"birthDate" binding:"required"`
 }
 
-func NewPerson(app *bootstrap.App, timeout time.Duration, group *gin.RouterGroup) {
+func CreatePerson(app *bootstrap.App, timeout time.Duration, group *gin.RouterGroup) {
 	fn := func(c *gin.Context) {
 		var request NewPersonRequest
-		err := c.ShouldBind(&request)
-		if err != nil {
+		if err := c.BindJSON(&request); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": domain.INVALID_SCHEMA + "\n" + err.Error()})
 			return
 		}
 
 		lc := presentation.NewPersonController(timeout, app)
-		err = lc.NewPerson(request.FirtsName, request.PatriLineal, request.MatriLineal, request.Address, request.BirthDate)
+		err := lc.CreatePerson(request.FirtsName, request.PatriLineal, request.MatriLineal, request.Address, request.BirthDate)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return

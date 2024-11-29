@@ -76,6 +76,12 @@ run/live:
 		--build.include_ext "go, tpl, tmpl, html, css, scss, js, ts, sql, jpeg, jpg, gif, png, bmp, svg, webp, ico" \
 		--misc.clean_on_exit "true"
 
+.PHONY: proto_build
+proto_build:
+	protoc --proto_path=grpc/proto \
+	   	--go_out=grpc/build --go_opt=paths=source_relative \
+		--go-grpc_out=grpc/build --go-grpc_opt=paths=source_relative \
+		grpc/proto/*.proto
 
 # ==================================================================================== #
 # OPERATIONS

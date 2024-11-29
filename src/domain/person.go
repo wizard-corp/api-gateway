@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"strings"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -19,7 +20,8 @@ type Person struct {
 
 type PersonRepository interface {
 	Create(person *Person) error
-	GetPersonByID(id string) (Person, error)
+	GetPersonByID(identifier string) (Person, error)
+	GetPersonByName(name string) (Person, error)
 }
 
 func (p *Person) IsValidPerson() []string {
@@ -35,4 +37,24 @@ func (p *Person) IsValidPerson() []string {
 func IsValidBirthDate(birthdateString string) bool {
 	_, err := time.Parse(BIRTHDATE_FORMAT, birthdateString)
 	return err != nil
+}
+
+func NewPerson(
+	firtsName string,
+	patriLineal string,
+	matriLineal string,
+	address string,
+	birthDate string) (*Person, error) {
+	person := Person{
+		ID:          primitive.NewObjectID(),
+		FirtsName:   firtsName,
+		PatriLineal: patriLineal,
+		MatriLineal: matriLineal,
+		Address:     address,
+		BirthDate:   birthDate}
+	errs := person.IsValidPerson()
+	if len(errs) > 0 {
+		return nil, NewDomainError(INVALID_SCHEMA, strings.Join(errs, "\n"))
+	}
+	return &person, nil
 }

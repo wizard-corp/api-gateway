@@ -24,7 +24,7 @@ func RefreshToken(app *bootstrap.App, timeout time.Duration, group *gin.RouterGr
 		}
 
 		lc := presentation.NewRefreshTokenController(timeout, app)
-		response, err := lc.NewRefreshToken(request.RefreshToken, app.Env.AccessTokenSecret, app.Env.AccessTokenExpiryHour, app.Env.RefreshTokenSecret, app.Env.RefreshTokenExpiryHour)
+		response, err := lc.RefreshToken(request.RefreshToken, app.Env.AccessTokenSecret, app.Env.AccessTokenExpiryHour, app.Env.RefreshTokenSecret, app.Env.RefreshTokenExpiryHour)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return

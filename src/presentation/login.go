@@ -1,8 +1,6 @@
 package presentation
 
 import (
-	"errors"
-	"strings"
 	"time"
 
 	"github.com/wizard-corp/api-gateway/src/application"
@@ -21,27 +19,25 @@ func NewLoginController(timeout time.Duration, app *bootstrap.App) *LoginControl
 	return &LoginController{&uc}
 }
 
-func (lc *LoginController) NewLogin(
+func (lc *LoginController) Login(
 	email string,
 	password string,
 	accessTokenSecret string,
 	accessTokenExpiryHour int,
 	refreshTokenSecret string,
 	refreshTokenExpiryHour int) (*domain.JwtTokenResponse, error) {
-	login := domain.Login{
-		Email:    email,
-		Password: password,
-		JwtToken: domain.JwtToken{
-			AccessTokenSecret:      accessTokenSecret,
-			AccessTokenExpiryHour:  accessTokenExpiryHour,
-			RefreshTokenSecret:     refreshTokenSecret,
-			RefreshTokenExpiryHour: refreshTokenExpiryHour}}
-	errs := login.IsLoginValid()
-	if len(errs) > 0 {
-		return nil, errors.New(domain.INVALID_SCHEMA + "\n" + strings.Join(errs, "\n"))
+	login, err := domain.NewLogin(
+		email,
+		password,
+		accessTokenSecret,
+		accessTokenExpiryHour,
+		refreshTokenSecret,
+		refreshTokenExpiryHour)
+	if err != nil {
+		return nil, err
 	}
 
-	loginResponse, err := lc.uc.NewLogin(&login)
+	loginResponse, err := lc.uc.Login(login)
 	if err != nil {
 		return nil, err
 	}

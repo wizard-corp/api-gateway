@@ -25,7 +25,7 @@ func Login(app *bootstrap.App, timeout time.Duration, group *gin.RouterGroup) {
 		}
 
 		lc := presentation.NewLoginController(timeout, app)
-		response, err := lc.NewLogin(request.Email, request.Password, app.Env.AccessTokenSecret, app.Env.AccessTokenExpiryHour, app.Env.RefreshTokenSecret, app.Env.RefreshTokenExpiryHour)
+		response, err := lc.Login(request.Email, request.Password, app.Env.AccessTokenSecret, app.Env.AccessTokenExpiryHour, app.Env.RefreshTokenSecret, app.Env.RefreshTokenExpiryHour)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return

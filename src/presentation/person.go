@@ -1,15 +1,12 @@
 package presentation
 
 import (
-	"errors"
-	"strings"
 	"time"
 
 	"github.com/wizard-corp/api-gateway/src/application"
 	"github.com/wizard-corp/api-gateway/src/bootstrap"
 	"github.com/wizard-corp/api-gateway/src/domain"
 	"github.com/wizard-corp/api-gateway/src/mymongo"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type PersonController struct {
@@ -31,24 +28,29 @@ func (lc *PersonController) GetPersonByID(identifier string) (*domain.Person, er
 	return personResponse, nil
 }
 
-func (lc *PersonController) NewPerson(
+func (lc *PersonController) GetPersonByName(name string) (*domain.Person, error) {
+	personResponse, err := lc.uc.GetPersonByName(name)
+	if err != nil {
+		return nil, err
+	}
+
+	return personResponse, nil
+}
+
+func (lc *PersonController) CreatePerson(
 	firtsName string,
 	patriLineal string,
 	matriLineal string,
 	address string,
 	birthDate string) error {
-	person := domain.Person{
-		ID:          primitive.NewObjectID(),
-		FirtsName:   firtsName,
-		PatriLineal: patriLineal,
-		MatriLineal: matriLineal,
-		Address:     address,
-		BirthDate:   birthDate}
-	errs := person.IsValidPerson()
-	if len(errs) > 0 {
-		txt := domain.INVALID_SCHEMA + "\n" + strings.Join(errs, "\n")
-		return errors.New(txt)
+	person, err := domain.NewPerson(
+		firtsName,
+		patriLineal,
+		matriLineal,
+		address,
+		birthDate)
+	if err != nil {
+		return err
 	}
-
-	return lc.uc.NewPerson(&person)
+	return lc.uc.CreatePerson(person)
 }

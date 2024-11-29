@@ -1,5 +1,9 @@
 package domain
 
+import (
+	"strings"
+)
+
 type RefreshToken struct {
 	RefreshToken string
 	JwtToken
@@ -17,4 +21,24 @@ func (rtc *RefreshToken) IsRefreshTokenValid() []string {
 	}
 
 	return errors
+}
+
+func NewRefreshToken(
+	refreshToken string,
+	accessTokenSecret string,
+	accessTokenExpiryHour int,
+	refreshTokenSecret string,
+	refreshTokenExpiryHour int) (*RefreshToken, error) {
+	rtc := RefreshToken{
+		RefreshToken: refreshToken,
+		JwtToken: JwtToken{
+			AccessTokenSecret:      accessTokenSecret,
+			AccessTokenExpiryHour:  accessTokenExpiryHour,
+			RefreshTokenSecret:     refreshTokenSecret,
+			RefreshTokenExpiryHour: refreshTokenExpiryHour}}
+	errs := rtc.IsRefreshTokenValid()
+	if len(errs) > 0 {
+		return nil, NewDomainError(INVALID_SCHEMA, strings.Join(errs, "\n"))
+	}
+	return &rtc, nil
 }

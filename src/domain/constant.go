@@ -11,8 +11,11 @@ const (
 	DB_CONNECTION_FAILED = "Connection attempt was not successfull"
 	ENCRIPTION_ERROR     = "Encription failed"
 	DB_INSERT_FAILED     = "Create Fail"
+	DB_FETCH_BY_PARAM    = "Fetch by param fail"
 	INVALID_FORMAT       = "Invalid format"
 	IS_EMPTY             = "The param is empty"
 	ALREADY_EXISTS       = "The register is present"
 	DECODE_FAIL          = "failed to parse"
+	COMPARE_FAIL         = "param doesnt match"
+	TOKEN_FAIL           = "token logic fail"
 )

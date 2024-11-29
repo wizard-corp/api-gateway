@@ -1,3 +1,4 @@
+protoc --proto_path=grpc/proto --go_out=grpc/build --go_opt=paths=source_relative --go-grpc_out=grpc/build --go-grpc_opt=paths=source_relative grpc/proto/\*.proto
 export $(cat .env | xargs)
 
 ```mermaid

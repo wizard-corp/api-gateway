@@ -30,6 +30,11 @@ func (uc *MongoPerson) GetPersonByID(id string) (domain.Person, error) {
 	return uc.GetSinglePersonByParam(filter)
 }
 
+func (uc *MongoPerson) GetPersonByName(name string) (domain.Person, error) {
+	filter := bson.D{{Key: "name", Value: name}}
+	return uc.GetSinglePersonByParam(filter)
+}
+
 func (uc *MongoPerson) GetSinglePersonByParam(filter bson.D) (domain.Person, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), uc.ContextTimeout)
 	defer cancel()

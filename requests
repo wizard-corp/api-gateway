@@ -1,0 +1,75 @@
+#!/usr/bin/env bash
+# Load variables from .env file
+source .env
+
+# Functions
+hello() {
+    curl -X GET "$URL/hello"
+}
+
+signup() {
+    curl -X POST "$URL/signup" \
+        -H 'Content-Type: application/json' \
+        -d '{
+            "name": "'"$firstName"'",
+            "email": "'"$email"'",
+            "password": "'"$password"'"
+        }'
+}
+
+login() {
+    curl -X POST "$URL/login" \
+        -H 'Content-Type: application/json' \
+        -d '{
+            "email": "'"$1"'",
+            "password": "'"$2"'"
+        }'
+}
+
+refreshToken() {
+    curl -X POST "$URL/refresh" \
+        -H 'Content-Type: application/json' \
+        -d '{
+            "refreshToken": "'"$TOKEN"'"
+        }'
+}
+
+createPerson() {
+    curl -X POST "$URL/person" \
+        -H 'Content-Type: application/json' \
+        -d '{
+            "firstName": "'"$firstName"'",
+            "patriLineal": "'"$patriLineal"'",
+            "matriLineal": "'"$matriLineal"'",
+            "address": "'"$address"'",
+            "birthDate": "'"$birthDate"'"
+        }'
+}
+
+# Variables
+URL="http://localhost:${API_PORT}"
+firstName="Patrick"
+patriLineal="Fuentes"
+matriLineal="Carpio"
+address="Cultura chimu 413"
+birthDate="1995-07-18"
+email="patrick.alonso.fc@gmail.com"
+password="123456"
+
+# Testing all functions
+echo "Testing hello()"
+hello
+
+echo "Testing signup()"
+signup
+
+echo "Testing login()"
+TOKEN=$(login "$email" "$password" | jq -r .token)
+echo "Login token: $TOKEN"
+
+echo "Testing refreshToken()"
+refreshToken
+
+echo "Testing createPerson()"
+createPerson
+

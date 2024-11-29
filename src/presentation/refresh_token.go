@@ -1,8 +1,6 @@
 package presentation
 
 import (
-	"errors"
-	"strings"
 	"time"
 
 	"github.com/wizard-corp/api-gateway/src/application"
@@ -21,25 +19,22 @@ func NewRefreshTokenController(timeout time.Duration, app *bootstrap.App) *Refre
 	return &RefreshTokenController{&uc}
 }
 
-func (lc *RefreshTokenController) NewRefreshToken(
+func (lc *RefreshTokenController) RefreshToken(
 	refreshToken string,
 	accessTokenSecret string,
 	accessTokenExpiryHour int,
 	refreshTokenSecret string,
 	refreshTokenExpiryHour int) (*domain.JwtTokenResponse, error) {
-	rtc := domain.RefreshToken{
-		RefreshToken: refreshToken,
-		JwtToken: domain.JwtToken{
-			AccessTokenSecret:      accessTokenSecret,
-			AccessTokenExpiryHour:  accessTokenExpiryHour,
-			RefreshTokenSecret:     refreshTokenSecret,
-			RefreshTokenExpiryHour: refreshTokenExpiryHour}}
-	errs := rtc.IsRefreshTokenValid()
-	if len(errs) > 0 {
-		return nil, errors.New(domain.INVALID_SCHEMA + "\n" + strings.Join(errs, "\n"))
+	rtc, err := domain.NewRefreshToken(
+		refreshToken,
+		accessTokenSecret,
+		accessTokenExpiryHour,
+		refreshTokenSecret,
+		refreshTokenExpiryHour)
+	if err != nil {
+		return nil, err
 	}
-
-	rtcResponse, err := lc.uc.RefreshToken(&rtc)
+	rtcResponse, err := lc.uc.RefreshToken(rtc)
 	if err != nil {
 		return nil, err
 	}
